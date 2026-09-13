@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Citas - Giors Estética & Barbería</title>
+    <title>Panel de Administración - Giors Estética & Barbería</title>
     <!-- Fuente moderna -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Iconos Google Material Symbols -->
@@ -207,6 +207,15 @@
             opacity: 0.65; 
         }
 
+        .appointment-item.Cancelada { 
+            border-left-color: var(--danger); 
+            opacity: 0.65; 
+        }
+
+        .appointment-item.Cumplida { 
+            border-left-color: var(--primary); 
+        }
+
         .badge { 
             display: inline-block; 
             padding: 4px 10px; 
@@ -220,6 +229,8 @@
         .badge.Pendiente { background: var(--warning); }
         .badge.Aceptada { background: var(--success); }
         .badge.Rechazada { background: var(--danger); }
+        .badge.Cancelada { background: var(--danger); }
+        .badge.Cumplida { background: var(--primary); }
 
         .actions-row { 
             margin-top: 12px; 
@@ -278,13 +289,13 @@
                 <img src="giorz logo.png" alt="giorz logo" class="giorz logo-img">
             </div>
             <h1>Giorz Estetica y Barberia</h1>
-            <p>Sistema de Citas</p>
+            <p>Sistema de citas</p>
         </div>
 
         <div class="card">
             <div class="card-header-flex">
                 <h2>📅 Citas Registradas</h2>
-                <button class="btn-clear" onclick="limpiarHistorialInactivas()">
+                <button class="btn-clear" onclick="eliminarInactivasYCumplidas()">
                     🗑️ Borrar Inactivas / Cumplidas
                 </button>
             </div>
@@ -363,28 +374,43 @@
             document.getElementById('statusAlert').innerHTML = `Actualizando cita ${idCita} en la nube...`;
 
             try {
-                await fetch(`${SCRIPT_URL}?action=actualizar&id=${idCita}&estado=${nuevoEstado}`);
-                alert(`Cita ${idCita} marcada como ${nuevoEstado}`);
-                location.reload();
+                let res = await fetch(`${SCRIPT_URL}?action=actualizar&id=${idCita}&estado=${nuevoEstado}`);
+                let resultado = await res.json();
+                if(resultado.result === "success" || res.ok) {
+                    alert(`Cita ${idCita} marcada como ${nuevoEstado}`);
+                    location.reload();
+                } else {
+                    alert("Error al actualizar la cita en el servidor.");
+                    document.getElementById('statusAlert').style.display = 'none';
+                }
             } catch (e) {
-                alert("Error al actualizar la cita.");
+                alert("Error de conexión al actualizar la cita.");
+                document.getElementById('statusAlert').style.display = 'none';
             }
         }
 
-        async function limpiarHistorialInactivas() {
-            if (!confirm("¿Deseas eliminar permanentemente todas las citas Rechazadas, Canceladas y Cumplidas?")) {
+        async function eliminarInactivasYCumplidas() {
+            if (!confirm("¿Deseas eliminar permanentemente de la base de datos todas las citas Rechazadas, Canceladas y Cumplidas?")) {
                 return;
             }
 
             document.getElementById('statusAlert').style.display = 'block';
-            document.getElementById('statusAlert').innerHTML = `Eliminando citas inactivas de la nube...`;
+            document.getElementById('statusAlert').innerHTML = `Eliminando citas inactivas y cumplidas de la nube...`;
 
             try {
-                await fetch(`${SCRIPT_URL}?action=eliminarInactivas`);
-                alert("Historial de citas inactivas depurado correctamente.");
-                location.reload();
+                // Se solicita el endpoint correcto de borrado múltiple por estados
+                let res = await fetch(`${SCRIPT_URL}?action=eliminarInactivas`);
+                let resultado = await res.json();
+
+                if (resultado.result === "success" || res.ok) {
+                    alert("Historial depurado correctamente.");
+                    location.reload();
+                } else {
+                    alert("No se pudieron eliminar los registros en Google Sheets.");
+                    document.getElementById('statusAlert').style.display = 'none';
+                }
             } catch (e) {
-                alert("Error al depurar las citas.");
+                alert("Error de conexión al intentar depurar las citas.");
                 document.getElementById('statusAlert').style.display = 'none';
             }
         }
