@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración - Citas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
+        body { background: linear-gradient(135deg, #1f1f1f, #3a3a3a); color: #fff; padding: 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        .main-container { width: 100%; max-width: 800px; }
+        .top-bar { background: #262626; padding: 20px; border-radius: 12px; margin-bottom: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); text-align: center; }
+        .top-bar h1 { font-size: 20px; color: #fff; }
+        .card { background: #262626; padding: 25px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); border-top: 5px solid #25d366; }
+        .appointment-item { background: #333; padding: 14px; border-radius: 8px; margin-bottom: 12px; border-left: 4px solid #e67e22; font-size: 13px; }
+        .appointment-item.Aceptada { border-left-color: #27ae60; }
+        .appointment-item.Rechazada { border-left-color: #c0392b; opacity: 0.6; }
+        .badge { display: inline-block; padding: 2px 6px; font-size: 11px; border-radius: 4px; color: white; float: right; }
+        .badge.Pendiente { background: #e67e22; }
+        .badge.Aceptada { background: #27ae60; }
+        .badge.Rechazada { background: #c0392b; }
+        .actions-row { margin-top: 8px; display: flex; gap: 10px; }
+        .btn-action { padding: 6px 12px; font-size: 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; }
+        .btn-accept { background: #27ae60; color: white; }
+        .btn-reject { background: #c0392b; color: white; }
+        #statusAlert { display: none; background: #27ae60; color: white; padding: 12px; border-radius: 8px; margin-bottom: 20px; text-align: center; font-weight: 600; }
+    </style>
+</head>
+<body>
+
+    <div class="main-container">
+        <div id="statusAlert">Cargando datos de la nube...</div>
+        <div class="top-bar">
+            <h1>Panel de Control - Administrador</h1>
+            <p style="font-size: 12px; color: #aaa;">Gestión de Citas en Tiempo Real</p>
+        </div>
+        <div class="card">
+            <h2>📅 Citas Registradas</h2>
+            <div id="appointmentList" style="margin-top: 15px;">Cargando...</div>
+        </div>
+    </div>
+
+    <script>
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzx0U40K76i-57SuzOoZjdXwLNT_RNyckwYPsy8i0K7gUYDyQ_XSk23qoCH3vpFNOTTZA/exec";
+
+        document.addEventListener("DOMContentLoaded", () => {
+            cargarCitas();
+        });
+
+        async function cargarCitas() {
+            try {
+                let response = await fetch(`${SCRIPT_URL}?action=obtener`);
+                let citas = await response.json();
+                
+                const params = new URLSearchParams(window.location.search);
+                const targetId = params.get('id');
+
+                if (targetId) {
+                    let citaEspecifica = citas.find(c => c.id === targetId);
+                    if (citaEspecifica && citaEspecifica.estado === "Pendiente") {
+                        document.getElementById('statusAlert').style.display = 'block';
+                        document.getElementById('statusAlert').innerHTML = `Gestionando cita entrante: <b>${targetId}</b>`;
+                    }
+                } else {
+                    document.getElementById('statusAlert').style.display = 'none';
+                }
+
+                mostrarLista(citas);
+            } catch (e) {
+                document.getElementById('appointmentList').innerHTML = "Error al conectar con la base de datos.";
+            }
+        }
+
+        function mostrarLista(citas) {
+            const contenedor = document.getElementById('appointmentList');
+            if (citas.length === 0) {
+                contenedor.innerHTML = '<p style="color: #888; text-align: center;">No hay citas registradas.</p>';
+                return;
+            }
+
+            let html = '';
+            citas.forEach(cita => {
+                html += `
+                    <div class="appointment-item ${cita.estado}">
+                        <span class="badge ${cita.estado}">${cita.estado}</span>
+                        <strong>${cita.nombre}</strong><br>
+                        ✂️ Servicio: ${cita.servicio}<br>
+                        📅 Fecha: ${cita.fecha} | ⏰ Hora: ${cita.hora}<br>
+                        <small style="color: #aaa;">Ref: ${cita.id}</small>
+                        <div class="actions-row">
+                            <button class="btn-action btn-accept" onclick="cambiarEstado('${cita.id}', 'Aceptada')">✓ Aceptar</button>
+                            <button class="btn-action btn-reject" onclick="cambiarEstado('${cita.id}', 'Rechazada')">✕ Rechazar</button>
+                        </div>
+                    </div>
+                `;
+            });
+            contenedor.innerHTML = html;
+        }
+
+        async function cambiarEstado(idCita, nuevoEstado) {
+            document.getElementById('statusAlert').style.display = 'block';
+            document.getElementById('statusAlert').innerHTML = `Actualizando cita ${idCita} en la nube...`;
+
+            try {
+                await fetch(`${SCRIPT_URL}?action=actualizar&id=${idCita}&estado=${nuevoEstado}`);
+                alert(`Cita ${idCita} marcada como ${nuevoEstado}`);
+                location.reload();
+            } catch (e) {
+                alert("Error al actualizar la cita.");
+            }
+        }
+    </script>
+</body>
+</html>
