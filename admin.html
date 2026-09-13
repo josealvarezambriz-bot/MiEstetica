@@ -1,39 +1,257 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Administración - Citas</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <title>Panel de Administración - Giors Estética & Barbería</title>
+    <!-- Fuente moderna -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Iconos Google Material Symbols -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+    
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
-        body { background: linear-gradient(135deg, #1f1f1f, #3a3a3a); color: #fff; padding: 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
-        .main-container { width: 100%; max-width: 800px; }
-        .top-bar { background: #262626; padding: 20px; border-radius: 12px; margin-bottom: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); text-align: center; }
-        .top-bar h1 { font-size: 20px; color: #fff; }
-        .card { background: #262626; padding: 25px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); border-top: 5px solid #25d366; }
-        .appointment-item { background: #333; padding: 14px; border-radius: 8px; margin-bottom: 12px; border-left: 4px solid #e67e22; font-size: 13px; }
-        .appointment-item.Aceptada { border-left-color: #27ae60; }
-        .appointment-item.Rechazada { border-left-color: #c0392b; opacity: 0.6; }
-        .badge { display: inline-block; padding: 2px 6px; font-size: 11px; border-radius: 4px; color: white; float: right; }
-        .badge.Pendiente { background: #e67e22; }
-        .badge.Aceptada { background: #27ae60; }
-        .badge.Rechazada { background: #c0392b; }
-        .actions-row { margin-top: 8px; display: flex; gap: 10px; }
-        .btn-action { padding: 6px 12px; font-size: 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; }
-        .btn-accept { background: #27ae60; color: white; }
-        .btn-reject { background: #c0392b; color: white; }
-        #statusAlert { display: none; background: #27ae60; color: white; padding: 12px; border-radius: 8px; margin-bottom: 20px; text-align: center; font-weight: 600; }
+        :root {
+            --bg-color: #e0e5ec;
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --card-bg: #e0e5ec;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --danger: #ef4444;
+            --success: #10b981;
+            --warning: #f59e0b;
+            
+            --shadow-outset: 6px 6px 12px #bec8d4, -6px -6px 12px #ffffff;
+            --shadow-inset: inset 6px 6px 12px #bec8d4, inset -6px -6px 12px #ffffff;
+            
+            --font-family: 'Poppins', sans-serif;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #1f2937;
+            --primary: #60a5fa;
+            --primary-dark: #3b82f6;
+            --card-bg: #1f2937;
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --danger: #f87171;
+            --success: #34d399;
+            --warning: #fbbf24;
+
+            --shadow-outset: 6px 6px 12px #111827, -6px -6px 12px #2d3748;
+            --shadow-inset: inset 6px 6px 12px #111827, inset -6px -6px 12px #2d3748;
+        }
+
+        [data-theme="oled"] {
+            --bg-color: #000000;
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --card-bg: #121212;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --danger: #ef4444;
+            --success: #10b981;
+            --warning: #f59e0b;
+
+            --shadow-outset: 5px 5px 10px #050505, -5px -5px 10px #1f1f1f;
+            --shadow-inset: inset 5px 5px 10px #050505, inset -5px -5px 10px #1f1f1f; 
+        }
+
+        * { 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+            font-family: var(--font-family); 
+        }
+
+        body { 
+            background-color: var(--bg-color); 
+            color: var(--text-primary); 
+            padding: 20px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            min-height: 100vh; 
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .main-container { 
+            width: 100%; 
+            max-width: 600px; 
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Selector de Temas */
+        .theme-selector {
+            display: flex;
+            justify-content: space-between;
+            background: var(--card-bg);
+            padding: 10px;
+            border-radius: 16px;
+            box-shadow: var(--shadow-outset);
+        }
+
+        .theme-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            font-weight: 500;
+            padding: 8px 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .theme-btn.active {
+            color: var(--primary);
+            box-shadow: var(--shadow-inset);
+        }
+
+        .top-bar { 
+            background: var(--card-bg); 
+            padding: 25px; 
+            border-radius: 20px; 
+            box-shadow: var(--shadow-outset); 
+            text-align: center; 
+        }
+
+        /* Estilos del Logo en el Encabezado */
+        .logo-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+
+        .logo-img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            box-shadow: var(--shadow-outset);
+            border: 2px solid rgba(212, 175, 55, 0.3);
+        }
+
+        .top-bar h1 { 
+            font-size: 18px; 
+            color: var(--text-primary); 
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .top-bar p {
+            font-size: 12px; 
+            color: var(--text-secondary);
+        }
+
+        .card { 
+            background: var(--card-bg); 
+            padding: 30px; 
+            border-radius: 20px; 
+            box-shadow: var(--shadow-outset); 
+        }
+
+        .card h2 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .appointment-item { 
+            background: var(--card-bg); 
+            padding: 18px; 
+            border-radius: 14px; 
+            margin-bottom: 16px; 
+            box-shadow: var(--shadow-inset);
+            border-left: 4px solid var(--warning); 
+            font-size: 13px; 
+            color: var(--text-primary);
+        }
+
+        .appointment-item.Aceptada { 
+            border-left-color: var(--success); 
+        }
+
+        .appointment-item.Rechazada { 
+            border-left-color: var(--danger); 
+            opacity: 0.65; 
+        }
+
+        .badge { 
+            display: inline-block; 
+            padding: 4px 10px; 
+            font-size: 11px; 
+            border-radius: 8px; 
+            color: white; 
+            float: right; 
+            font-weight: 500;
+        }
+
+        .badge.Pendiente { background: var(--warning); }
+        .badge.Aceptada { background: var(--success); }
+        .badge.Rechazada { background: var(--danger); }
+
+        .actions-row { 
+            margin-top: 12px; 
+            display: flex; 
+            gap: 10px; 
+        }
+
+        .btn-action { 
+            padding: 8px 14px; 
+            font-size: 12px; 
+            border: none; 
+            border-radius: 10px; 
+            cursor: pointer; 
+            font-weight: 600; 
+            box-shadow: var(--shadow-outset);
+            transition: transform 0.1s ease;
+        }
+
+        .btn-action:active {
+            box-shadow: var(--shadow-inset);
+            transform: scale(0.97);
+        }
+
+        .btn-accept { background: var(--success); color: white; }
+        .btn-reject { background: var(--danger); color: white; }
+
+        #statusAlert { 
+            display: none; 
+            background: var(--card-bg); 
+            color: var(--text-primary); 
+            border: 1px solid var(--success);
+            padding: 14px; 
+            border-radius: 14px; 
+            text-align: center; 
+            font-weight: 600; 
+            box-shadow: var(--shadow-outset);
+        }
     </style>
 </head>
 <body>
 
     <div class="main-container">
-        <div id="statusAlert">Cargando datos de la nube...</div>
-        <div class="top-bar">
-            <h1>Panel de Control - Administrador</h1>
-            <p style="font-size: 12px; color: #aaa;">Gestión de Citas en Tiempo Real</p>
+        <!-- Selector de temas interactivo -->
+        <div class="theme-selector">
+            <button class="theme-btn active" onclick="setTheme('light', this)">Claro</button>
+            <button class="theme-btn" onclick="setTheme('dark', this)">Oscuro</button>
+            <button class="theme-btn" onclick="setTheme('oled', this)">OLED</button>
         </div>
+
+        <div id="statusAlert">Cargando datos de la nube...</div>
+        
+        <div class="top-bar">
+            <!-- Logo integrado en el panel de administración -->
+            <div class="logo-container">
+                <img src="giorz logo.png" alt="giors logo" class="giorz logo-img">
+            </div>
+            <h1>Panel de Control - Administrador</h1>
+            <p>Gestión de Citas en Tiempo Real</p>
+        </div>
+
         <div class="card">
             <h2>📅 Citas Registradas</h2>
             <div id="appointmentList" style="margin-top: 15px;">Cargando...</div>
@@ -42,6 +260,14 @@
 
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzx0U40K76i-57SuzOoZjdXwLNT_RNyckwYPsy8i0K7gUYDyQ_XSk23qoCH3vpFNOTTZA/exec";
+
+        function setTheme(theme, button) {
+            document.documentElement.setAttribute('data-theme', theme);
+            document.querySelectorAll('.theme-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            button.classList.add('active');
+        }
 
         document.addEventListener("DOMContentLoaded", () => {
             cargarCitas();
@@ -67,14 +293,14 @@
 
                 mostrarLista(citas);
             } catch (e) {
-                document.getElementById('appointmentList').innerHTML = "Error al conectar con la base de datos.";
+                document.getElementById('appointmentList').innerHTML = '<p style="color: var(--text-secondary); text-align: center;">Error al conectar con la base de datos.</p>';
             }
         }
 
         function mostrarLista(citas) {
             const contenedor = document.getElementById('appointmentList');
             if (citas.length === 0) {
-                contenedor.innerHTML = '<p style="color: #888; text-align: center;">No hay citas registradas.</p>';
+                contenedor.innerHTML = '<p style="color: var(--text-secondary); text-align: center;">No hay citas registradas.</p>';
                 return;
             }
 
@@ -86,7 +312,7 @@
                         <strong>${cita.nombre}</strong><br>
                         ✂️ Servicio: ${cita.servicio}<br>
                         📅 Fecha: ${cita.fecha} | ⏰ Hora: ${cita.hora}<br>
-                        <small style="color: #aaa;">Ref: ${cita.id}</small>
+                        <small style="color: var(--text-secondary);">Ref: ${cita.id}</small>
                         <div class="actions-row">
                             <button class="btn-action btn-accept" onclick="cambiarEstado('${cita.id}', 'Aceptada')">✓ Aceptar</button>
                             <button class="btn-action btn-reject" onclick="cambiarEstado('${cita.id}', 'Rechazada')">✕ Rechazar</button>
