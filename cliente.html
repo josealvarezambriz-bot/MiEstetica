@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agendar Cita - Estética & Barbería</title>
+    <title>Agendar Cita - Giors Estética & Barbería</title>
     <!-- Fuente moderna -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Iconos Google Material Symbols -->
@@ -20,10 +20,6 @@
             --danger: #ef4444;
             --success: #10b981;
             
-            --icon-clinica: #8b5cf6;
-            --icon-meds: #ec4899;
-            --icon-hora: #f59e0b;
-
             --shadow-outset: 6px 6px 12px #bec8d4, -6px -6px 12px #ffffff;
             --shadow-inset: inset 6px 6px 12px #bec8d4, inset -6px -6px 12px #ffffff;
             
@@ -119,6 +115,22 @@
             border-radius: 20px; 
             box-shadow: var(--shadow-outset); 
             transition: box-shadow 0.3s ease, background-color 0.3s ease;
+        }
+
+        /* Estilos del Logo en el Encabezado */
+        .logo-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .logo-img {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            object-fit: cover;
+            box-shadow: var(--shadow-outset);
+            border: 2px solid rgba(212, 175, 55, 0.3); /* Toque sutil dorado acorde al logo */
         }
 
         h2 { 
@@ -220,8 +232,13 @@
         </div>
 
         <div class="card">
+            <!-- Logo integrado en el encabezado -->
+            <div class="logo-container">
+                <img src="logo.png" alt="Giors Logo" class="logo-img">
+            </div>
+
             <h2>Agendar Cita</h2>
-            <p>Estética & Barbería Style</p>
+            <p>Giors Estética & Barbería Style</p>
 
             <form id="appointmentForm">
                 <div class="form-group">
@@ -262,7 +279,7 @@
     </div>
 
     <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzx0U40K76i-57SuzOoZjdXwLNT_RNyckwYPsy8i0K7gUYDyQ_XSk23qoCH3vpFNOTTZA/exec"; 
+        const SCRIPT_URL = "TU_URL_DE_APPS_SCRIPT_AQUI"; 
         const MI_TELEFONO = "5213511043239";
 
         function setTheme(theme, button) {
