@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Administración - Giors Estética & Barbería</title>
+    <title>Sistema de Citas - Giors Estética & Barbería</title>
     <!-- Fuente moderna -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Iconos Google Material Symbols -->
@@ -118,7 +118,6 @@
             text-align: center; 
         }
 
-        /* Estilos del Logo en el Encabezado */
         .logo-container {
             display: flex;
             justify-content: center;
@@ -153,10 +152,39 @@
             box-shadow: var(--shadow-outset); 
         }
 
+        .card-header-flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
         .card h2 {
             font-size: 16px;
             font-weight: 600;
             color: var(--text-primary);
+        }
+
+        .btn-clear {
+            background: var(--card-bg);
+            color: var(--danger);
+            border: none;
+            padding: 8px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: var(--shadow-outset);
+            transition: transform 0.1s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-clear:active {
+            box-shadow: var(--shadow-inset);
+            transform: scale(0.97);
         }
 
         .appointment-item { 
@@ -197,6 +225,7 @@
             margin-top: 12px; 
             display: flex; 
             gap: 10px; 
+            flex-wrap: wrap;
         }
 
         .btn-action { 
@@ -217,6 +246,7 @@
 
         .btn-accept { background: var(--success); color: white; }
         .btn-reject { background: var(--danger); color: white; }
+        .btn-complete { background: var(--primary); color: white; }
 
         #statusAlert { 
             display: none; 
@@ -244,16 +274,20 @@
         <div id="statusAlert">Cargando datos de la nube...</div>
         
         <div class="top-bar">
-            <!-- Logo integrado en el panel de administración -->
             <div class="logo-container">
                 <img src="giorz logo.png" alt="giors logo" class="giorz logo-img">
             </div>
-            <h1>Panel de Control - Administrador</h1>
-            <p>Gestión de Citas en Tiempo Real</p>
+            <h1>Giorz Estetica y Barberia</h1>
+            <p>Sistema de Citas</p>
         </div>
 
         <div class="card">
-            <h2>📅 Citas Registradas</h2>
+            <div class="card-header-flex">
+                <h2>📅 Citas Registradas</h2>
+                <button class="btn-clear" onclick="limpiarHistorialInactivas()">
+                    🗑️ Borrar Inactivas / Cumplidas
+                </button>
+            </div>
             <div id="appointmentList" style="margin-top: 15px;">Cargando...</div>
         </div>
     </div>
@@ -315,6 +349,7 @@
                         <small style="color: var(--text-secondary);">Ref: ${cita.id}</small>
                         <div class="actions-row">
                             <button class="btn-action btn-accept" onclick="cambiarEstado('${cita.id}', 'Aceptada')">✓ Aceptar</button>
+                            <button class="btn-action btn-complete" onclick="cambiarEstado('${cita.id}', 'Cumplida')">⭐ Cumplida</button>
                             <button class="btn-action btn-reject" onclick="cambiarEstado('${cita.id}', 'Rechazada')">✕ Rechazar</button>
                         </div>
                     </div>
@@ -333,6 +368,24 @@
                 location.reload();
             } catch (e) {
                 alert("Error al actualizar la cita.");
+            }
+        }
+
+        async function limpiarHistorialInactivas() {
+            if (!confirm("¿Deseas eliminar permanentemente todas las citas Rechazadas, Canceladas y Cumplidas?")) {
+                return;
+            }
+
+            document.getElementById('statusAlert').style.display = 'block';
+            document.getElementById('statusAlert').innerHTML = `Eliminando citas inactivas de la nube...`;
+
+            try {
+                await fetch(`${SCRIPT_URL}?action=eliminarInactivas`);
+                alert("Historial de citas inactivas depurado correctamente.");
+                location.reload();
+            } catch (e) {
+                alert("Error al depurar las citas.");
+                document.getElementById('statusAlert').style.display = 'none';
             }
         }
     </script>
